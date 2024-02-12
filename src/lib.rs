@@ -8,6 +8,7 @@ use anyhow::Result;
 use axum::{routing::get, Router};
 use handler::item;
 use sqlx::SqlitePool;
+use tower_http::validate_request::ValidateRequestHeaderLayer;
 
 pub type AppState = Arc<State>;
 
@@ -18,9 +19,10 @@ pub struct State {
 pub struct App;
 
 impl App {
-    pub async fn new_app(database_url: &str) -> Result<Router> {
+    pub async fn new_app(database_url: &str, token: &str) -> Result<Router> {
         let state = Self::new_state(database_url).await?;
-        let router = Self::new_router(state);
+        let auth_layer = ValidateRequestHeaderLayer::bearer(token);
+        let router = Self::new_router(state).route_layer(auth_layer);
         Ok(router)
     }
 

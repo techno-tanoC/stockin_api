@@ -6,6 +6,7 @@ services:
     command: sleep infinity
     environment:
       DATABASE_URL: sqlite://db/database.sqlite3
+      BEARER_TOKEN: debug
     init: true
     volumes:
       - ../:/workspace
