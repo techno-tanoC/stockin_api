@@ -28,7 +28,7 @@ RUN <<EOF
   apt update
   apt install -y wget
 
-  wget -O sqlite3def.tar.gz https://github.com/sqldef/sqldef/releases/latest/download/sqlite3def_linux_amd64.tar.gz
+  wget -O sqlite3def.tar.gz https://github.com/sqldef/sqldef/releases/download/v0.16.15/sqlite3def_linux_amd64.tar.gz
   wget -O litestream.tar.gz https://github.com/benbjohnson/litestream/releases/download/v0.3.13/litestream-v0.3.13-linux-amd64.tar.gz
   tar -C /usr/local/bin -xvf sqlite3def.tar.gz
   tar -C /usr/local/bin -xvf litestream.tar.gz
