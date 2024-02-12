@@ -2,9 +2,14 @@
 name = "stockin_api"
 version = "0.1.0"
 edition = "2021"
+default-run = "api"
 
 [[bin]]
 name = "stockin_api"
+test = false
+
+[[bin]]
+name = "api"
 test = false
 
 [[bin]]
