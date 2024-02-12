@@ -1,0 +1,6 @@
+services:
+  app:
+    build:
+      context: ../../
+      dockerfile: docker/app/Dockerfile
+    platform: linux/x86_64
