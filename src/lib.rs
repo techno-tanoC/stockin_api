@@ -9,7 +9,7 @@ use axum::{
     routing::{get, post},
     Router,
 };
-use handler::{item, query};
+use handler::{item, not_found, query};
 use reqwest::Client;
 use sqlx::SqlitePool;
 use tower_http::validate_request::ValidateRequestHeaderLayer;
@@ -43,6 +43,7 @@ impl App {
         Router::new()
             .nest("/items", item_router)
             .nest("/query", query_router)
+            .fallback(not_found)
             .with_state(state)
     }
 
