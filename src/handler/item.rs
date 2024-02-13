@@ -1,9 +1,7 @@
 use axum::extract::State;
-use serde::Deserialize;
-use uuid::Uuid;
 
 use crate::{
-    domain::item::{Item, ItemParams},
+    domain::item::{Item, ItemId, ItemParams, ItemRange},
     repo::item,
     AppState,
 };
@@ -13,27 +11,18 @@ use super::{
     response::{JsonData, NotFound, Result},
 };
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct Id {
-    item_id: Uuid,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct Range {
-    from: Option<Uuid>,
-    limit: Option<i64>,
-}
-
-pub async fn find(state: State<AppState>, id: Path<Id>) -> Result<JsonData<Item>> {
+pub async fn find(state: State<AppState>, id: Path<ItemId>) -> Result<JsonData<Item>> {
     let item = item::find_by_id(&state.pool, id.item_id)
         .await?
         .ok_or(NotFound)?;
     JsonData::ok(item)
 }
 
-pub async fn index(state: State<AppState>, params: Query<Range>) -> Result<JsonData<Vec<Item>>> {
-    let from = params.from.unwrap_or(Uuid::max());
-    let limit = params.limit.unwrap_or(20).clamp(1, 50);
+pub async fn index(
+    state: State<AppState>,
+    params: Query<ItemRange>,
+) -> Result<JsonData<Vec<Item>>> {
+    let (from, limit) = params.extract();
     let items = item::find_by_range(&state.pool, from, limit).await?;
     JsonData::ok(items)
 }
@@ -51,7 +40,7 @@ pub async fn create(
 
 pub async fn update(
     state: State<AppState>,
-    id: Path<Id>,
+    id: Path<ItemId>,
     Json(params): Json<ItemParams>,
 ) -> Result<JsonData<Item>> {
     let mut tx = state.pool.begin().await?;
@@ -63,7 +52,10 @@ pub async fn update(
     JsonData::ok(item)
 }
 
-pub async fn delete(state: State<AppState>, id: Path<Id>) -> Result<JsonData<serde_json::Value>> {
+pub async fn delete(
+    state: State<AppState>,
+    id: Path<ItemId>,
+) -> Result<JsonData<serde_json::Value>> {
     item::delete(&state.pool, id.item_id).await.unwrap();
     JsonData::empty()
 }
