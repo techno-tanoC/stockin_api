@@ -73,3 +73,26 @@ async fn test_crud() {
     let res = app.delete(&format!("/items/{}", &id_str)).await;
     assert_eq!(res.status(), StatusCode::OK);
 }
+
+#[tokio::test]
+async fn test_index() {
+    let app = common::TestApp::new().await;
+
+    for i in 0..10 {
+        let body = serde_json::to_string(&json!({
+            "title": format!("example{}", i),
+            "url": format!("https://example{}.com/", i),
+            "thumbnail": format!("https://example{}.com/", i),
+        }))
+        .unwrap();
+        let res = app.post("/items", Body::new(body)).await;
+        assert_eq!(res.status(), StatusCode::CREATED);
+    }
+
+    let res = app.get("/items").await;
+    assert_eq!(res.status(), StatusCode::OK);
+    let json = common::into_json(res).await;
+    assert_json!(json, {
+        "data": assert_json::validators::array_size(10),
+    });
+}
