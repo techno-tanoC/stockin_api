@@ -10,7 +10,7 @@ use crate::{
 
 use super::{
     request::{Json, Path, Query},
-    response::{JsonData, NoContent, NotFound, Result},
+    response::{JsonData, NotFound, Result},
 };
 
 #[derive(Debug, Clone, Deserialize)]
@@ -63,7 +63,7 @@ pub async fn update(
     JsonData::ok(item)
 }
 
-pub async fn delete(state: State<AppState>, id: Path<Id>) -> Result<NoContent> {
+pub async fn delete(state: State<AppState>, id: Path<Id>) -> Result<JsonData<serde_json::Value>> {
     item::delete(&state.pool, id.item_id).await.unwrap();
-    NoContent::ok()
+    JsonData::empty()
 }

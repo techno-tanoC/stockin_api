@@ -31,6 +31,16 @@ impl<T> JsonData<T> {
     }
 }
 
+impl JsonData<serde_json::Value> {
+    pub fn empty() -> Result<Self> {
+        Ok(Self {
+            status: StatusCode::OK,
+            data: json!({}),
+            message: "".to_string(),
+        })
+    }
+}
+
 impl<T> IntoResponse for JsonData<T>
 where
     T: Serialize,
@@ -42,21 +52,6 @@ where
             "message": self.message
         });
         (self.status, Json(json)).into_response()
-    }
-}
-
-#[derive(Debug, Clone)]
-pub struct NoContent;
-
-impl NoContent {
-    pub fn ok() -> Result<Self> {
-        Ok(NoContent)
-    }
-}
-
-impl IntoResponse for NoContent {
-    fn into_response(self) -> Response {
-        StatusCode::NO_CONTENT.into_response()
     }
 }
 

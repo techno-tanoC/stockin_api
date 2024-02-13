@@ -71,5 +71,5 @@ async fn test_crud() {
 
     // Delete
     let res = app.delete(&format!("/items/{}", &id_str)).await;
-    assert_eq!(res.status(), StatusCode::NO_CONTENT);
+    assert_eq!(res.status(), StatusCode::OK);
 }
