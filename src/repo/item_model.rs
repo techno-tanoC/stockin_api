@@ -20,7 +20,7 @@ impl ModelExt for Model {
     type Target = Item;
 
     fn convert(self) -> Result<Self::Target> {
-        let id = Uuid::try_parse(&self.id)?.hyphenated();
+        let id = Uuid::try_parse(&self.id)?;
         let item = Item {
             id,
             title: self.title,

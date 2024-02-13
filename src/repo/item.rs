@@ -1,6 +1,6 @@
 use anyhow::Result;
 use sqlx::SqliteExecutor;
-use uuid::fmt::Hyphenated;
+use uuid::{fmt::Hyphenated, Uuid};
 
 use crate::domain::item::{Item, ItemParams};
 
@@ -38,7 +38,7 @@ pub async fn find_by_range(
     models.convert()
 }
 
-pub async fn insert(exe: impl SqliteExecutor<'_>, params: ItemParams) -> Result<Hyphenated> {
+pub async fn insert(exe: impl SqliteExecutor<'_>, params: ItemParams) -> Result<Uuid> {
     let model = InsertModel::new(params)?;
 
     sqlx::query!(
@@ -53,7 +53,7 @@ pub async fn insert(exe: impl SqliteExecutor<'_>, params: ItemParams) -> Result<
     .execute(exe)
     .await?;
 
-    Ok(model.id)
+    Ok(model.id.into_uuid())
 }
 
 pub async fn update(
@@ -90,7 +90,7 @@ pub async fn delete(exe: impl SqliteExecutor<'_>, id: impl Into<Hyphenated>) -> 
 
 #[allow(dead_code)]
 async fn save(pool: impl SqliteExecutor<'_>, item: &Item) {
-    let id = item.id;
+    let id = item.id.hyphenated();
     sqlx::query!(
         r#"INSERT INTO items Values (?, ?, ?, ?, ?, ?)"#,
         id,
@@ -108,7 +108,6 @@ async fn save(pool: impl SqliteExecutor<'_>, item: &Item) {
 #[cfg(test)]
 mod tests {
     use chrono::{Duration, DurationRound as _, Utc};
-    use uuid::Uuid;
 
     use crate::repo::test_util;
 
@@ -188,7 +187,7 @@ mod tests {
                 .duration_trunc(Duration::microseconds(1))
                 .unwrap();
             let item = Item {
-                id: id.hyphenated(),
+                id: *id,
                 title: format!("example{}", i),
                 url: format!("https://example{}.com/", i),
                 thumbnail: format!("https://example{}.com/", i),

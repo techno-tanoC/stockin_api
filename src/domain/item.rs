@@ -1,10 +1,10 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use uuid::fmt::Hyphenated;
+use uuid::Uuid;
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Item {
-    pub id: Hyphenated,
+    pub id: Uuid,
     pub title: String,
     pub url: String,
     pub thumbnail: String,
@@ -12,7 +12,7 @@ pub struct Item {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ItemParams {
     pub title: String,
     pub url: String,
