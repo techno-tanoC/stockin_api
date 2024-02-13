@@ -8,8 +8,9 @@ use serde_json::json;
 
 #[derive(Debug, Clone)]
 pub struct JsonData<T> {
-    status: StatusCode,
-    data: T,
+    pub status: StatusCode,
+    pub data: T,
+    pub message: String,
 }
 
 impl<T> JsonData<T> {
@@ -17,6 +18,7 @@ impl<T> JsonData<T> {
         Ok(Self {
             status: StatusCode::OK,
             data,
+            message: "".to_string(),
         })
     }
 
@@ -24,6 +26,7 @@ impl<T> JsonData<T> {
         Ok(Self {
             status: StatusCode::CREATED,
             data,
+            message: "".to_string(),
         })
     }
 }
@@ -34,7 +37,9 @@ where
 {
     fn into_response(self) -> Response {
         let json = json!({
+            "status": self.status.as_u16(),
             "data": self.data,
+            "message": self.message
         });
         (self.status, Json(json)).into_response()
     }
@@ -67,22 +72,20 @@ impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         match self {
             Self::ServerError => {
-                let json = json!({
-                    "error": {
-                        "status": StatusCode::INTERNAL_SERVER_ERROR.as_u16(),
-                        "message": "INTERNAL SERVER ERROR",
-                    }
-                });
-                (StatusCode::INTERNAL_SERVER_ERROR, Json(json)).into_response()
+                let data = JsonData {
+                    status: StatusCode::INTERNAL_SERVER_ERROR,
+                    data: serde_json::json!({}),
+                    message: "INTERNAL SERVER ERROR".to_string(),
+                };
+                data.into_response()
             }
             Self::ClientError { status, message } => {
-                let json = json!({
-                    "error": {
-                        "status": status.as_u16(),
-                        "message": message,
-                    }
-                });
-                (status, Json(json)).into_response()
+                let data = JsonData {
+                    status,
+                    data: serde_json::json!({}),
+                    message,
+                };
+                data.into_response()
             }
         }
     }

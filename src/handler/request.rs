@@ -9,6 +9,8 @@ use axum::{
     response::IntoResponse,
 };
 
+use super::response::JsonData;
+
 #[derive(FromRequest)]
 #[from_request(via(axum::extract::Json), rejection(ErrorRejection))]
 pub struct Json<T>(pub T);
@@ -53,13 +55,12 @@ pub struct ErrorRejection {
 
 impl IntoResponse for ErrorRejection {
     fn into_response(self) -> axum::response::Response {
-        let payload = serde_json::json!({
-            "error": {
-                "status": self.status.as_u16(),
-                "message": self.message,
-            }
-        });
-        (self.status, axum::Json(payload)).into_response()
+        let data = JsonData {
+            status: self.status,
+            data: serde_json::json!({}),
+            message: self.message,
+        };
+        data.into_response()
     }
 }
 
