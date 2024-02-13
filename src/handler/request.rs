@@ -60,7 +60,7 @@ impl IntoResponse for ErrorRejection {
             data: serde_json::json!({}),
             message: self.message,
         };
-        data.into_response()
+        (self.status, data).into_response()
     }
 }
 
