@@ -1,10 +1,10 @@
 use anyhow::Result;
-use chrono::{Duration, DurationRound, NaiveDateTime, TimeZone as _, Utc};
+use chrono::{NaiveDateTime, TimeZone as _, Utc};
 use uuid::{fmt::Hyphenated, Uuid};
 
 use crate::domain::item::{Item, ItemParams};
 
-use super::model_ext::ModelExt;
+use super::{model_ext::ModelExt, Timestamp};
 
 #[derive(Debug, Clone)]
 pub(super) struct Model {
@@ -46,9 +46,7 @@ pub(super) struct InsertModel {
 impl InsertModel {
     pub fn new(params: ItemParams) -> Result<Self> {
         let id = Uuid::now_v7().hyphenated();
-        let now = Utc::now()
-            .duration_trunc(Duration::microseconds(1))?
-            .naive_utc();
+        let now = Timestamp::now()?;
         let model = Self {
             id,
             title: params.title,
@@ -72,9 +70,7 @@ pub(super) struct UpdateModel {
 
 impl UpdateModel {
     pub fn new(id: Hyphenated, params: ItemParams) -> Result<Self> {
-        let now = Utc::now()
-            .duration_trunc(Duration::microseconds(1))?
-            .naive_utc();
+        let now = Timestamp::now()?;
         Ok(Self {
             id,
             title: params.title,
