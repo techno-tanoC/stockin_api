@@ -23,7 +23,9 @@ pub async fn info(state: State<AppState>, params: Json<UrlParams>) -> Result<Jso
         .select(&title_selector)
         .next()
         .map(|e| e.text().collect::<Vec<_>>().concat())
-        .unwrap_or("".to_string());
+        .unwrap_or("".to_string())
+        .trim()
+        .to_string();
 
     let thumbnail_selector = Selector::parse(r#"html > head > meta[property="og:image"]"#).unwrap();
     let thumbnail = html
@@ -31,6 +33,8 @@ pub async fn info(state: State<AppState>, params: Json<UrlParams>) -> Result<Jso
         .next()
         .and_then(|e| e.attr("content"))
         .unwrap_or("")
+        .to_string()
+        .trim()
         .to_string();
 
     let info = Info { title, thumbnail };
