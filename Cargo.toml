@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2021"
 default-run = "api"
 
+[lib]
+doctest = false
+
 [[bin]]
 name = "stockin_api"
 test = false
