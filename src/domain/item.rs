@@ -37,3 +37,51 @@ pub struct ItemParams {
     pub url: String,
     pub thumbnail: String,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_item_range() {
+        {
+            let range = ItemRange {
+                from: None,
+                limit: None,
+            };
+            assert_eq!(range.extract(), (Uuid::max(), 20));
+        }
+
+        {
+            let range = ItemRange {
+                from: Some(Uuid::nil()),
+                limit: None,
+            };
+            assert_eq!(range.extract(), (Uuid::nil(), 20));
+        }
+
+        {
+            let range = ItemRange {
+                from: None,
+                limit: Some(0),
+            };
+            assert_eq!(range.extract(), (Uuid::max(), 1));
+        }
+
+        {
+            let range = ItemRange {
+                from: None,
+                limit: Some(10),
+            };
+            assert_eq!(range.extract(), (Uuid::max(), 10));
+        }
+
+        {
+            let range = ItemRange {
+                from: None,
+                limit: Some(100),
+            };
+            assert_eq!(range.extract(), (Uuid::max(), 50));
+        }
+    }
+}
