@@ -16,7 +16,7 @@ pub struct ItemRange {
 impl ItemRange {
     pub fn extract(&self) -> (Uuid, i64) {
         let before = self.before.unwrap_or_else(Uuid::max);
-        let limit = self.limit.unwrap_or(20).clamp(1, 50);
+        let limit = self.limit.unwrap_or(30).clamp(1, 50);
         (before, limit)
     }
 }
@@ -49,7 +49,7 @@ mod tests {
                 before: None,
                 limit: None,
             };
-            assert_eq!(range.extract(), (Uuid::max(), 20));
+            assert_eq!(range.extract(), (Uuid::max(), 30));
         }
 
         {
@@ -57,7 +57,7 @@ mod tests {
                 before: Some(Uuid::nil()),
                 limit: None,
             };
-            assert_eq!(range.extract(), (Uuid::nil(), 20));
+            assert_eq!(range.extract(), (Uuid::nil(), 30));
         }
 
         {
