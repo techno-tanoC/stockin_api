@@ -22,8 +22,8 @@ pub async fn index(
     state: State<AppState>,
     params: Query<ItemRange>,
 ) -> Result<JsonData<Vec<Item>>> {
-    let (from, limit) = params.extract();
-    let items = item::find_by_range(&state.pool, from, limit).await?;
+    let (before, limit) = params.extract();
+    let items = item::find_by_range(&state.pool, before, limit).await?;
     JsonData::ok(items)
 }
 

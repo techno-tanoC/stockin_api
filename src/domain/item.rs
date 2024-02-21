@@ -9,15 +9,15 @@ pub struct ItemId {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ItemRange {
-    from: Option<Uuid>,
+    before: Option<Uuid>,
     limit: Option<i64>,
 }
 
 impl ItemRange {
     pub fn extract(&self) -> (Uuid, i64) {
-        let from = self.from.unwrap_or_else(Uuid::max);
+        let before = self.before.unwrap_or_else(Uuid::max);
         let limit = self.limit.unwrap_or(20).clamp(1, 50);
-        (from, limit)
+        (before, limit)
     }
 }
 
@@ -46,7 +46,7 @@ mod tests {
     fn test_item_range() {
         {
             let range = ItemRange {
-                from: None,
+                before: None,
                 limit: None,
             };
             assert_eq!(range.extract(), (Uuid::max(), 20));
@@ -54,7 +54,7 @@ mod tests {
 
         {
             let range = ItemRange {
-                from: Some(Uuid::nil()),
+                before: Some(Uuid::nil()),
                 limit: None,
             };
             assert_eq!(range.extract(), (Uuid::nil(), 20));
@@ -62,7 +62,7 @@ mod tests {
 
         {
             let range = ItemRange {
-                from: None,
+                before: None,
                 limit: Some(0),
             };
             assert_eq!(range.extract(), (Uuid::max(), 1));
@@ -70,7 +70,7 @@ mod tests {
 
         {
             let range = ItemRange {
-                from: None,
+                before: None,
                 limit: Some(10),
             };
             assert_eq!(range.extract(), (Uuid::max(), 10));
@@ -78,7 +78,7 @@ mod tests {
 
         {
             let range = ItemRange {
-                from: None,
+                before: None,
                 limit: Some(100),
             };
             assert_eq!(range.extract(), (Uuid::max(), 50));

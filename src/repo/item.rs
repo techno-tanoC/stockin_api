@@ -21,15 +21,15 @@ pub async fn find_by_id(
 
 pub async fn find_by_range(
     exe: impl SqliteExecutor<'_>,
-    from: impl Into<Hyphenated>,
+    before: impl Into<Hyphenated>,
     limit: i64,
 ) -> Result<Vec<Item>> {
-    let from = from.into();
+    let before = before.into();
 
     let models = sqlx::query_as!(
         Model,
         r#"SELECT * FROM items WHERE id < ? ORDER BY id DESC LIMIT ?"#,
-        from,
+        before,
         limit,
     )
     .fetch_all(exe)
@@ -198,8 +198,8 @@ mod tests {
         }
         ids.reverse();
 
-        // data:   |----------|
-        // from: |--------------|
+        // data  :   |----------|
+        // before: |--------------|
         {
             let items = find_by_range(&pool, Uuid::max(), 100).await.unwrap();
             assert_eq!(items.len(), 10);
@@ -207,8 +207,8 @@ mod tests {
             assert_eq!(items[9].title, "example0".to_string());
         }
 
-        // data:   |----------|
-        // from: |--------|
+        // data  :   |----------|
+        // before: |--------|
         {
             let items = find_by_range(&pool, Uuid::max(), 5).await.unwrap();
             assert_eq!(items.len(), 5);
@@ -216,8 +216,8 @@ mod tests {
             assert_eq!(items[4].title, "example5".to_string());
         }
 
-        // data: |----------|
-        // from:    |----------|
+        // data  : |----------|
+        // before:    |----------|
         {
             let items = find_by_range(&pool, ids[3], 100).await.unwrap();
             assert_eq!(items.len(), 6);
@@ -225,8 +225,8 @@ mod tests {
             assert_eq!(items[5].title, "example0".to_string());
         }
 
-        // data: |----------|
-        // from:   |------|
+        // data  : |----------|
+        // before:   |------|
         {
             let items = find_by_range(&pool, ids[3], 3).await.unwrap();
             assert_eq!(items.len(), 3);
@@ -234,8 +234,8 @@ mod tests {
             assert_eq!(items[2].title, "example3".to_string());
         }
 
-        // data: |----------|
-        // from:               |------|
+        // data  : |----------|
+        // before:               |------|
         {
             let items = find_by_range(&pool, Uuid::nil(), 3).await.unwrap();
             assert_eq!(items.len(), 0);
