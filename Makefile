@@ -26,3 +26,11 @@ apply:
 
 setup: drop create apply
 reset: setup seed
+
+deploy-sandbox:
+	docker build -t us-west1-docker.pkg.dev/sandbox-310216/stockin/app:latest -f docker/app/Dockerfile --platform linux/x86_64 --push .
+	gcloud run deploy stockin --image=us-west1-docker.pkg.dev/sandbox-310216/stockin/app:latest --region=us-west1
+
+deploy-main:
+	docker build -t us-west1-docker.pkg.dev/main-282614/stockin/app:latest -f docker/app/Dockerfile --platform linux/x86_64 --push .
+	gcloud run deploy stockin --image=us-west1-docker.pkg.dev/main-282614/stockin/app:latest --region=us-west1
