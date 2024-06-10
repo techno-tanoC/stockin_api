@@ -1,4 +1,4 @@
-FROM rust:1.76-slim
+FROM rust:1.78.0-slim
 WORKDIR /workspace
 
 RUN <<EOF

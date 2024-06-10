@@ -1,5 +1,5 @@
 # Builder stage
-FROM rust:1.76.0-slim AS builder
+FROM rust:1.78.0-slim AS builder
 WORKDIR /workspace
 
 RUN <<EOF
@@ -17,6 +17,7 @@ EOF
 COPY Cargo.toml Cargo.lock ./
 RUN <<EOF
   mkdir -p src/bin/
+  echo "" > src/lib.rs
   echo "fn main() {}" > src/main.rs
   echo "fn main() {}" > src/bin/api.rs
   echo "fn main() {}" > src/bin/seed.rs
@@ -26,6 +27,7 @@ EOF
 ENV SQLX_OFFLINE true
 COPY . .
 RUN <<EOF
+  touch src/lib.rs
   touch src/main.rs
   touch src/bin/api.rs
   touch src/bin/seed.rs
