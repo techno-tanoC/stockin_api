@@ -1,0 +1,55 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - staging
+      - production
+
+env:
+  staging_workload_identity_provider: projects/426052778791/locations/global/workloadIdentityPools/deploy-stockin/providers/github-actions
+  staging_service_account: deploy-stockin@sandbox-310216.iam.gserviceaccount.com
+  staging_image: us-west1-docker.pkg.dev/sandbox-310216/stockin/app
+  production_workload_identity_provider: projects/901924296920/locations/global/workloadIdentityPools/deploy-stockin/providers/github-actions
+  production_service_account: deploy-stockin@main-282614.iam.gserviceaccount.com
+  production_image: us-west1-docker.pkg.dev/main-282614/stockin/app
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env[format('{0}_workload_identity_provider', github.ref_name)] }}
+          service_account: ${{ env[format('{0}_service_account', github.ref_name)] }}
+
+      - name: Configure docker to use the gcloud cli
+        run: |
+          gcloud auth configure-docker --quiet us-west1-docker.pkg.dev
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: docker/app/Dockerfile
+          tags: ${{ env[format('{0}_image', github.ref_name)] }}:latest,${{ env[format('{0}_image', github.ref_name)] }}:${{ github.sha }}
+          push: true
+
+      - name: Deploy
+        run: |
+          gcloud run deploy stockin --image=${{ env[format('{0}_image', github.ref_name)] }}:latest --region=us-west1
