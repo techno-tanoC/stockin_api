@@ -19,7 +19,11 @@ async fn main() -> Result<()> {
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     let listener = tokio::net::TcpListener::bind(addr).await?;
 
-    let app = App::new_app(&database_url, &token).await?;
+    let app = App::new_app(&database_url, &token)
+        .await?
+        .layer(axum::middleware::from_fn(
+            stockin_api::handler::access_log_middleware,
+        ));
 
     axum::serve(listener, app).await?;
     Ok(())
