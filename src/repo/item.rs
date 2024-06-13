@@ -1,27 +1,33 @@
+use std::fmt::Debug;
+
 use anyhow::Result;
 use sqlx::SqliteExecutor;
+use tracing::{error, instrument};
 use uuid::{fmt::Hyphenated, Uuid};
 
 use crate::domain::item::{Item, ItemParams};
 
 use super::{item_model::*, model_ext::ModelExt as _};
 
+#[instrument(skip(exe))]
 pub async fn find_by_id(
     exe: impl SqliteExecutor<'_>,
-    id: impl Into<Hyphenated>,
+    id: impl Into<Hyphenated> + Debug,
 ) -> Result<Option<Item>> {
     let id = id.into();
 
     let opt = sqlx::query_as!(Model, r#"SELECT * FROM items WHERE id = ?"#, id)
         .fetch_optional(exe)
-        .await?;
+        .await
+        .inspect_err(|e| error!("{}", e))?;
 
     opt.convert()
 }
 
+#[instrument(skip(exe))]
 pub async fn find_by_range(
     exe: impl SqliteExecutor<'_>,
-    before: impl Into<Hyphenated>,
+    before: impl Into<Hyphenated> + Debug,
     limit: i64,
 ) -> Result<Vec<Item>> {
     let before = before.into();
@@ -33,11 +39,13 @@ pub async fn find_by_range(
         limit,
     )
     .fetch_all(exe)
-    .await?;
+    .await
+    .inspect_err(|e| error!("{}", e))?;
 
     models.convert()
 }
 
+#[instrument(skip(exe))]
 pub async fn insert(exe: impl SqliteExecutor<'_>, params: ItemParams) -> Result<Uuid> {
     let model = InsertModel::new(params)?;
 
@@ -51,14 +59,16 @@ pub async fn insert(exe: impl SqliteExecutor<'_>, params: ItemParams) -> Result<
         model.updated_at,
     )
     .execute(exe)
-    .await?;
+    .await
+    .inspect_err(|e| error!("{}", e))?;
 
     Ok(model.id.into_uuid())
 }
 
+#[instrument(skip(exe))]
 pub async fn update(
     exe: impl SqliteExecutor<'_>,
-    id: impl Into<Hyphenated>,
+    id: impl Into<Hyphenated> + Debug,
     params: ItemParams,
 ) -> Result<()> {
     let id = id.into();
@@ -73,17 +83,20 @@ pub async fn update(
         model.id,
     )
     .execute(exe)
-    .await?;
+    .await
+    .inspect_err(|e| error!("{}", e))?;
 
     Ok(())
 }
 
-pub async fn delete(exe: impl SqliteExecutor<'_>, id: impl Into<Hyphenated>) -> Result<()> {
+#[instrument(skip(exe))]
+pub async fn delete(exe: impl SqliteExecutor<'_>, id: impl Into<Hyphenated> + Debug) -> Result<()> {
     let id = id.into();
 
     sqlx::query!(r#"DELETE FROM items WHERE id = ?"#, id)
         .execute(exe)
-        .await?;
+        .await
+        .inspect_err(|e| error!("{}", e))?;
 
     Ok(())
 }

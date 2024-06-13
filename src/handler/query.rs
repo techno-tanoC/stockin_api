@@ -3,6 +3,7 @@ use std::sync::OnceLock;
 use axum::extract::State;
 use scraper::{Html, Selector};
 use serde::Deserialize;
+use tracing::instrument;
 
 use crate::{domain::info::Info, AppState};
 
@@ -16,7 +17,8 @@ pub struct UrlParams {
     url: String,
 }
 
-pub async fn info(state: State<AppState>, params: Json<UrlParams>) -> Result<JsonData<Info>> {
+#[instrument(skip(state))]
+pub async fn info(state: State<AppState>, Json(params): Json<UrlParams>) -> Result<JsonData<Info>> {
     let document = state.client.get(&params.url).send().await?.text().await?;
     let html = Html::parse_document(&document);
 
