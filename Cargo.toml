@@ -37,6 +37,10 @@ tokio = { version = "1", features = ["full"] }
 tower-http = { version = "0.5", features = ["auth"] }
 uuid = { version = "1", features = ["v7", "serde"] }
 
+tracing = { version = "0.1", features = ["attributes"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-stackdriver = "0.10"
+
 [dev-dependencies]
 assert_json = { version = "0.1" }
 http-body-util = { version = "0.1" }
