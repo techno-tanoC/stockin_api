@@ -21,8 +21,9 @@ pub async fn info(state: State<AppState>, params: Json<UrlParams>) -> Result<Jso
     let html = Html::parse_document(&document);
 
     static TITLE_SELECTOR: OnceLock<Selector> = OnceLock::new();
-    let title_selector =
-        TITLE_SELECTOR.get_or_init(|| Selector::parse("html > head > title").unwrap());
+    let title_selector = TITLE_SELECTOR.get_or_init(|| {
+        Selector::parse("html > head > title").expect("Invalid CSS selector for titles")
+    });
 
     let title = html
         .select(title_selector)
@@ -33,8 +34,10 @@ pub async fn info(state: State<AppState>, params: Json<UrlParams>) -> Result<Jso
         .to_string();
 
     static THUMBNAIL_SELECTOR: OnceLock<Selector> = OnceLock::new();
-    let thumbnail_selector = THUMBNAIL_SELECTOR
-        .get_or_init(|| Selector::parse(r#"html > head > meta[property="og:image"]"#).unwrap());
+    let thumbnail_selector = THUMBNAIL_SELECTOR.get_or_init(|| {
+        Selector::parse(r#"html > head > meta[property="og:image"]"#)
+            .expect("Invalid CSS selector for thumbnails")
+    });
 
     let thumbnail = html
         .select(thumbnail_selector)

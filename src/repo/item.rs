@@ -102,7 +102,7 @@ async fn save(pool: impl SqliteExecutor<'_>, item: &Item) {
     )
     .execute(pool)
     .await
-    .unwrap();
+    .expect("Save error");
 }
 
 #[cfg(test)]

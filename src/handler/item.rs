@@ -34,7 +34,7 @@ pub async fn create(
     let mut tx = state.pool.begin().await?;
     let id = item::insert(&mut *tx, params).await?;
     let item = item::find_by_id(&mut *tx, id).await?.ok_or(NotFound)?;
-    tx.commit().await.unwrap();
+    tx.commit().await?;
     JsonData::created(item)
 }
 
@@ -56,6 +56,6 @@ pub async fn delete(
     state: State<AppState>,
     id: Path<ItemId>,
 ) -> Result<JsonData<serde_json::Value>> {
-    item::delete(&state.pool, id.item_id).await.unwrap();
+    item::delete(&state.pool, id.item_id).await?;
     JsonData::empty()
 }
