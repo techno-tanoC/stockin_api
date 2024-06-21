@@ -4,13 +4,18 @@ WORKDIR /workspace
 RUN <<EOF
   rustup component add rustfmt
   rustup component add clippy
-  cargo install cargo-watch
-  cargo install sqlx-cli --no-default-features --features sqlite
 EOF
 
 RUN <<EOF
   apt update
-  apt install -y make git wget sqlite3
+  apt install -y make git wget curl sqlite3
+EOF
+
+RUN <<EOF
+  curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+
+  cargo binstall --no-confirm cargo-watch
+  cargo binstall --no-confirm sqlx-cli
 EOF
 
 RUN <<EOF
