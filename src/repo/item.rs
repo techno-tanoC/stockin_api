@@ -88,27 +88,8 @@ pub async fn delete(exe: impl SqliteExecutor<'_>, id: impl Into<Hyphenated>) -> 
     Ok(())
 }
 
-#[allow(dead_code)]
-async fn save(pool: impl SqliteExecutor<'_>, item: &Item) {
-    let id = item.id.hyphenated();
-    sqlx::query!(
-        r#"INSERT INTO items Values (?, ?, ?, ?, ?, ?)"#,
-        id,
-        item.title,
-        item.url,
-        item.thumbnail,
-        item.created_at,
-        item.updated_at,
-    )
-    .execute(pool)
-    .await
-    .expect("Save error");
-}
-
 #[cfg(test)]
 mod tests {
-    use chrono::{Duration, DurationRound as _, Utc};
-
     use crate::repo::test_util;
 
     use super::*;
@@ -177,24 +158,15 @@ mod tests {
             assert_eq!(items.len(), 0);
         }
 
-        let mut ids = (0..10).map(|_| Uuid::now_v7()).collect::<Vec<_>>();
-
-        // UUID v7はミリ秒単位で同じタイミングで生成るとすると時系列順にならないため、明示的にソートする
-        ids.sort_unstable();
-
-        for (i, id) in ids.iter().enumerate() {
-            let now = Utc::now()
-                .duration_trunc(Duration::microseconds(1))
-                .unwrap();
-            let item = Item {
-                id: *id,
+        let mut ids = vec![];
+        for i in 0..10 {
+            let params = ItemParams {
                 title: format!("example{}", i),
                 url: format!("https://example{}.com/", i),
                 thumbnail: format!("https://example{}.com/", i),
-                created_at: now,
-                updated_at: now,
             };
-            save(&pool, &item).await;
+            let id = insert(&pool, params).await.unwrap();
+            ids.push(id);
         }
         ids.reverse();
 
