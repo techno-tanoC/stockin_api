@@ -8,7 +8,7 @@ EOF
 
 RUN <<EOF
   apt update
-  apt install -y make git wget curl sqlite3
+  apt install -y make git wget curl sqlite3 jq
 EOF
 
 RUN <<EOF

@@ -1,0 +1,22 @@
+version: '3'
+
+vars:
+  ORIGIN: http://localhost:3000
+  AUTHORIZATION: "AUTHORIZATION: Bearer debug"
+  CONTENT_TYPE: "Content-Type: application/json"
+
+tasks:
+  item-index:
+    cmds:
+      - curl -v -H "{{.AUTHORIZATION}}" -H "{{.CONTENT_TYPE}}" {{.ORIGIN}}/items | jq
+
+  item-create:
+    cmds:
+      - curl -v -H "{{.AUTHORIZATION}}" -H "{{.CONTENT_TYPE}}" -d '{{.JSON}}' {{.ORIGIN}}/items | jq
+    vars:
+      JSON: |
+        {
+          "title": "example",
+          "url": "https://example.com/",
+          "thumbnail": "https://example.com/"
+        }
