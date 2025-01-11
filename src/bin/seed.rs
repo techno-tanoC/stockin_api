@@ -1,13 +1,13 @@
 use std::env;
 
 use anyhow::Result;
-use sqlx::SqlitePool;
+use sqlx::PgPool;
 use stockin_api::{domain::item::ItemParams, repo::item};
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let database_url = env::var("DATABASE_URL")?;
-    let pool = SqlitePool::connect(&database_url).await?;
+    let pool = PgPool::connect(&database_url).await?;
 
     for (title, url, thumbnail) in items() {
         let params = ItemParams {

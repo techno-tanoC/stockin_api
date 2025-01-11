@@ -6,17 +6,10 @@ includes:
 vars:
   DATABASE: db/database.sqlite3
 
+env:
+  PGPASSWORD: pass
+
 tasks:
-  replicate:
-    cmds:
-      - litestream replicate -config ./litestream.yaml
-
-  run-replicate:
-    cmds:
-      - mkdir -p ./db
-      - litestream restore -config ./litestream.yaml -if-db-not-exists -if-replica-exists {{.DATABASE}}
-      - litestream replicate -config ./litestream.yaml -exec "cargo run"
-
   seed:
     cmds:
       - cargo run --bin seed
@@ -25,18 +18,21 @@ tasks:
     cmds:
       - sqlite3 {{.DATABASE}}
 
+  psql:
+    cmds:
+      - psql -h db -U root -d dev -P pager=off
+
   create:
     cmds:
-      - sqlite3 {{.DATABASE}} ""
+      - psql -h db -U root postgres -c "CREATE DATABASE dev" || true
 
   drop:
     cmds:
-      - rm -rf db
-      - mkdir db
+      - psql -h db -U root postgres -c "DROP DATABASE IF EXISTS dev WITH (FORCE)"
 
   apply:
     cmds:
-      - sqlite3def -f schema.sql {{.DATABASE}}
+      - psqldef -h db -U root dev < schema.sql
 
   setup:
     cmds:

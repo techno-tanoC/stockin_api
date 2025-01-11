@@ -1,5 +1,5 @@
 use anyhow::Result;
-use chrono::{NaiveDateTime, TimeZone as _, Utc};
+use chrono::{DateTime, Utc};
 use uuid::{fmt::Hyphenated, Uuid};
 
 use crate::domain::item::{Item, ItemParams};
@@ -12,8 +12,8 @@ pub(super) struct Model {
     pub title: String,
     pub url: String,
     pub thumbnail: String,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 impl ModelExt for Model {
@@ -26,8 +26,8 @@ impl ModelExt for Model {
             title: self.title,
             url: self.url,
             thumbnail: self.thumbnail,
-            created_at: Utc.from_utc_datetime(&self.created_at),
-            updated_at: Utc.from_utc_datetime(&self.updated_at),
+            created_at: self.created_at,
+            updated_at: self.updated_at,
         };
         Ok(item)
     }
@@ -39,8 +39,8 @@ pub(super) struct InsertModel {
     pub title: String,
     pub url: String,
     pub thumbnail: String,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 impl InsertModel {
@@ -65,7 +65,7 @@ pub(super) struct UpdateModel {
     pub title: String,
     pub url: String,
     pub thumbnail: String,
-    pub updated_at: NaiveDateTime,
+    pub updated_at: DateTime<Utc>,
 }
 
 impl UpdateModel {

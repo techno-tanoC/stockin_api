@@ -1,5 +1,5 @@
 use anyhow::Result;
-use sqlx::SqliteExecutor;
+use sqlx::PgExecutor;
 use uuid::{fmt::Hyphenated, Uuid};
 
 use crate::domain::item::{Item, ItemParams};
@@ -7,20 +7,24 @@ use crate::domain::item::{Item, ItemParams};
 use super::{item_model::*, model_ext::ModelExt as _};
 
 pub async fn find_by_id(
-    exe: impl SqliteExecutor<'_>,
+    exe: impl PgExecutor<'_>,
     id: impl Into<Hyphenated>,
 ) -> Result<Option<Item>> {
     let id = id.into();
 
-    let opt = sqlx::query_as!(Model, r#"SELECT * FROM items WHERE id = ?"#, id)
-        .fetch_optional(exe)
-        .await?;
+    let opt = sqlx::query_as!(
+        Model,
+        r#"SELECT * FROM items WHERE id = $1"#,
+        id.to_string()
+    )
+    .fetch_optional(exe)
+    .await?;
 
     opt.convert()
 }
 
 pub async fn find_by_range(
-    exe: impl SqliteExecutor<'_>,
+    exe: impl PgExecutor<'_>,
     before: impl Into<Hyphenated>,
     limit: i64,
 ) -> Result<Vec<Item>> {
@@ -28,8 +32,8 @@ pub async fn find_by_range(
 
     let models = sqlx::query_as!(
         Model,
-        r#"SELECT * FROM items WHERE id < ? ORDER BY id DESC LIMIT ?"#,
-        before,
+        r#"SELECT * FROM items WHERE id < $1 ORDER BY id DESC LIMIT $2"#,
+        before.to_string(),
         limit,
     )
     .fetch_all(exe)
@@ -38,12 +42,12 @@ pub async fn find_by_range(
     models.convert()
 }
 
-pub async fn insert(exe: impl SqliteExecutor<'_>, params: ItemParams) -> Result<Uuid> {
+pub async fn insert(exe: impl PgExecutor<'_>, params: ItemParams) -> Result<Uuid> {
     let model = InsertModel::new(params)?;
 
     sqlx::query!(
-        r#"INSERT INTO items VALUES (?, ?, ?, ?, ?, ?)"#,
-        model.id,
+        r#"INSERT INTO items VALUES ($1, $2, $3, $4, $5, $6)"#,
+        model.id.to_string(),
         model.title,
         model.url,
         model.thumbnail,
@@ -57,7 +61,7 @@ pub async fn insert(exe: impl SqliteExecutor<'_>, params: ItemParams) -> Result<
 }
 
 pub async fn update(
-    exe: impl SqliteExecutor<'_>,
+    exe: impl PgExecutor<'_>,
     id: impl Into<Hyphenated>,
     params: ItemParams,
 ) -> Result<()> {
@@ -65,12 +69,12 @@ pub async fn update(
     let model = UpdateModel::new(id, params)?;
 
     sqlx::query!(
-        r#"UPDATE items SET title = ?, url = ?, thumbnail = ?, updated_at = ? WHERE id = ?"#,
+        r#"UPDATE items SET title = $1, url = $2, thumbnail = $3, updated_at = $4 WHERE id = $5"#,
         model.title,
         model.url,
         model.thumbnail,
         model.updated_at,
-        model.id,
+        model.id.to_string(),
     )
     .execute(exe)
     .await?;
@@ -78,10 +82,10 @@ pub async fn update(
     Ok(())
 }
 
-pub async fn delete(exe: impl SqliteExecutor<'_>, id: impl Into<Hyphenated>) -> Result<()> {
-    let id = id.into();
+pub async fn delete(exe: impl PgExecutor<'_>, id: impl Into<Hyphenated>) -> Result<()> {
+    let id: Hyphenated = id.into();
 
-    sqlx::query!(r#"DELETE FROM items WHERE id = ?"#, id)
+    sqlx::query!(r#"DELETE FROM items WHERE id = $1"#, id.to_string())
         .execute(exe)
         .await?;
 
@@ -90,13 +94,15 @@ pub async fn delete(exe: impl SqliteExecutor<'_>, id: impl Into<Hyphenated>) -> 
 
 #[cfg(test)]
 mod tests {
+    use sqlx::PgPool;
+
     use crate::repo::test_util;
 
     use super::*;
 
-    #[tokio::test]
-    async fn test_crud() {
-        let pool = test_util::connect().await;
+    #[sqlx::test]
+    async fn test_crud(pool: PgPool) {
+        test_util::migrate(&pool).await;
 
         let title = "example".to_string();
         let url = "https://example.com/".to_string();
@@ -148,9 +154,9 @@ mod tests {
         }
     }
 
-    #[tokio::test]
-    async fn test_find_by_range() {
-        let pool = test_util::connect().await;
+    #[sqlx::test]
+    async fn test_find_by_range(pool: PgPool) {
+        test_util::migrate(&pool).await;
 
         // No items
         {
