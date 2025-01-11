@@ -12,6 +12,7 @@ use axum::{
 use handler::{item, not_found, query};
 use reqwest::Client;
 use sqlx::SqlitePool;
+use tokio::net::TcpListener;
 use tower_http::validate_request::ValidateRequestHeaderLayer;
 
 pub type AppState = Arc<State>;
@@ -21,14 +22,29 @@ pub struct State {
     pub client: Client,
 }
 
-pub struct App;
+impl State {
+    pub async fn from_url(database_url: &str) -> Result<AppState> {
+        let pool = SqlitePool::connect(database_url).await?;
+        let client = Client::new();
+        let state = Self { pool, client };
+        Ok(Arc::new(state))
+    }
+}
+
+pub struct App {
+    router: Router,
+}
 
 impl App {
-    pub async fn new_app(database_url: &str, token: &str) -> Result<Router> {
-        let state = Self::new_state(database_url).await?;
+    pub async fn new(state: AppState, token: &str) -> Result<Self> {
         let auth_layer = ValidateRequestHeaderLayer::bearer(token);
         let router = Self::new_router(state).route_layer(auth_layer);
-        Ok(router)
+        Ok(Self { router })
+    }
+
+    pub async fn start(self, listener: TcpListener) -> Result<()> {
+        axum::serve(listener, self.router).await?;
+        Ok(())
     }
 
     #[rustfmt::skip]
@@ -45,12 +61,5 @@ impl App {
             .nest("/query", query_router)
             .fallback(not_found)
             .with_state(state)
-    }
-
-    pub async fn new_state(database_url: &str) -> Result<AppState> {
-        let pool = SqlitePool::connect(database_url).await?;
-        let client = Client::new();
-        let state = State { pool, client };
-        Ok(Arc::new(state))
     }
 }

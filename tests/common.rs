@@ -8,7 +8,7 @@ use axum::{
     Router,
 };
 use http_body_util::BodyExt;
-use stockin_api::App;
+use stockin_api::{App, State};
 use tower::ServiceExt as _;
 
 pub struct TestApp {
@@ -17,7 +17,7 @@ pub struct TestApp {
 
 impl TestApp {
     pub async fn new() -> Self {
-        let state = App::new_state("sqlite://:memory:").await.unwrap();
+        let state = State::from_url("sqlite://:memory:").await.unwrap();
         let schema = tokio::fs::read_to_string("./schema.sql").await.unwrap();
         sqlx::query(&schema).execute(&state.pool).await.unwrap();
         let router = App::new_router(state);
