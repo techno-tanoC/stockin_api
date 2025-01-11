@@ -1,41 +1,44 @@
 {
-  "db_name": "SQLite",
-  "query": "SELECT * FROM items WHERE id < ? ORDER BY id DESC LIMIT ?",
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM items WHERE id < $1 ORDER BY id DESC LIMIT $2",
   "describe": {
     "columns": [
       {
-        "name": "id",
         "ordinal": 0,
+        "name": "id",
         "type_info": "Text"
       },
       {
-        "name": "title",
         "ordinal": 1,
+        "name": "title",
         "type_info": "Text"
       },
       {
-        "name": "url",
         "ordinal": 2,
+        "name": "url",
         "type_info": "Text"
       },
       {
-        "name": "thumbnail",
         "ordinal": 3,
+        "name": "thumbnail",
         "type_info": "Text"
       },
       {
-        "name": "created_at",
         "ordinal": 4,
-        "type_info": "Datetime"
+        "name": "created_at",
+        "type_info": "Timestamptz"
       },
       {
-        "name": "updated_at",
         "ordinal": 5,
-        "type_info": "Datetime"
+        "name": "updated_at",
+        "type_info": "Timestamptz"
       }
     ],
     "parameters": {
-      "Right": 2
+      "Left": [
+        "Text",
+        "Int8"
+      ]
     },
     "nullable": [
       false,
@@ -46,5 +49,5 @@
       false
     ]
   },
-  "hash": "1f815d54370ee2ebd96a97f1936eedde52e72e3e2ad33695abb6cb10197a93f9"
+  "hash": "5a4b114f46fadfb67076b951181e52cf60bc659e69f59fd58c5222ea1ac318b9"
 }

@@ -1,41 +1,43 @@
 {
-  "db_name": "SQLite",
-  "query": "SELECT * FROM items WHERE id = ?",
+  "db_name": "PostgreSQL",
+  "query": "SELECT * FROM items WHERE id = $1",
   "describe": {
     "columns": [
       {
-        "name": "id",
         "ordinal": 0,
+        "name": "id",
         "type_info": "Text"
       },
       {
-        "name": "title",
         "ordinal": 1,
+        "name": "title",
         "type_info": "Text"
       },
       {
-        "name": "url",
         "ordinal": 2,
+        "name": "url",
         "type_info": "Text"
       },
       {
-        "name": "thumbnail",
         "ordinal": 3,
+        "name": "thumbnail",
         "type_info": "Text"
       },
       {
-        "name": "created_at",
         "ordinal": 4,
-        "type_info": "Datetime"
+        "name": "created_at",
+        "type_info": "Timestamptz"
       },
       {
-        "name": "updated_at",
         "ordinal": 5,
-        "type_info": "Datetime"
+        "name": "updated_at",
+        "type_info": "Timestamptz"
       }
     ],
     "parameters": {
-      "Right": 1
+      "Left": [
+        "Text"
+      ]
     },
     "nullable": [
       false,
@@ -46,5 +48,5 @@
       false
     ]
   },
-  "hash": "2bb781f88dcf74b70a3c60634ecf47760b87b1229632f350280f417cd1904432"
+  "hash": "1e9045f52c002a19b815351fee1c7ee7520478ff4f5886b4523fb0dc4df0e204"
 }

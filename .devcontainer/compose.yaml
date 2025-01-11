@@ -5,7 +5,7 @@ services:
       dockerfile: .devcontainer/Dockerfile
     command: sleep infinity
     environment:
-      DATABASE_URL: sqlite://db/database.sqlite3
+      DATABASE_URL: postgres://root:pass@db/dev
       BEARER_TOKEN: debug
     init: true
     volumes:
@@ -13,12 +13,14 @@ services:
       - cargo:/usr/local/cargo
       - target:/workspace/target
 
-  minio:
-    image: minio/minio
-    command: server /data --console-address ":9001"
-    ports:
-      - 9000:9000
-      - 9001:9001
+  db:
+    image: postgres:16.6
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: dev
+    volumes:
+      - ../db:/var/lib/postgresql/data
 
 volumes:
   cargo:

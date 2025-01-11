@@ -3,11 +3,12 @@ mod common;
 use assert_json::assert_json;
 use axum::{body::Body, http::StatusCode};
 use serde_json::json;
+use sqlx::PgPool;
 use uuid::Uuid;
 
-#[tokio::test]
-async fn test_crud() {
-    let app = common::TestApp::new().await;
+#[sqlx::test]
+async fn test_crud(pool: PgPool) {
+    let app = common::TestApp::new(pool).await;
 
     let title = "example";
     let url = "https://example.com/";
@@ -74,9 +75,9 @@ async fn test_crud() {
     assert_eq!(res.status(), StatusCode::OK);
 }
 
-#[tokio::test]
-async fn test_index() {
-    let app = common::TestApp::new().await;
+#[sqlx::test]
+async fn test_index(pool: PgPool) {
+    let app = common::TestApp::new(pool).await;
 
     for i in 0..10 {
         let body = serde_json::to_string(&json!({
