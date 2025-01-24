@@ -1,6 +1,6 @@
 use anyhow::Result;
 use chrono::{DateTime, Utc};
-use uuid::{fmt::Hyphenated, Uuid};
+use uuid::Uuid;
 
 use crate::domain::item::{Item, ItemParams};
 
@@ -8,7 +8,7 @@ use super::{model_ext::ModelExt, Timestamp};
 
 #[derive(Debug, Clone)]
 pub(super) struct Model {
-    pub id: String,
+    pub id: Uuid,
     pub title: String,
     pub url: String,
     pub thumbnail: String,
@@ -20,9 +20,8 @@ impl ModelExt for Model {
     type Target = Item;
 
     fn convert(self) -> Result<Self::Target> {
-        let id = Uuid::try_parse(&self.id)?;
         let item = Item {
-            id,
+            id: self.id,
             title: self.title,
             url: self.url,
             thumbnail: self.thumbnail,
@@ -35,7 +34,7 @@ impl ModelExt for Model {
 
 #[derive(Debug, Clone)]
 pub(super) struct InsertModel {
-    pub id: Hyphenated,
+    pub id: Uuid,
     pub title: String,
     pub url: String,
     pub thumbnail: String,
@@ -45,7 +44,7 @@ pub(super) struct InsertModel {
 
 impl InsertModel {
     pub fn new(params: ItemParams) -> Result<Self> {
-        let id = Uuid::now_v7().hyphenated();
+        let id = Uuid::now_v7();
         let now = Timestamp::now()?;
         let model = Self {
             id,
@@ -61,7 +60,7 @@ impl InsertModel {
 
 #[derive(Debug, Clone)]
 pub(super) struct UpdateModel {
-    pub id: Hyphenated,
+    pub id: Uuid,
     pub title: String,
     pub url: String,
     pub thumbnail: String,
@@ -69,7 +68,7 @@ pub(super) struct UpdateModel {
 }
 
 impl UpdateModel {
-    pub fn new(id: Hyphenated, params: ItemParams) -> Result<Self> {
+    pub fn new(id: Uuid, params: ItemParams) -> Result<Self> {
         let now = Timestamp::now()?;
         Ok(Self {
             id,

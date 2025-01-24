@@ -1,6 +1,6 @@
 use anyhow::Result;
 use sqlx::PgExecutor;
-use uuid::{fmt::Hyphenated, Uuid};
+use uuid::Uuid;
 
 use crate::domain::item::{Item, ItemParams};
 
@@ -8,14 +8,14 @@ use super::{item_model::*, model_ext::ModelExt as _};
 
 pub async fn find_by_id(
     exe: impl PgExecutor<'_>,
-    id: impl Into<Hyphenated>,
+    id: impl Into<Uuid>,
 ) -> Result<Option<Item>> {
     let id = id.into();
 
     let opt = sqlx::query_as!(
         Model,
         r#"SELECT * FROM items WHERE id = $1"#,
-        id.to_string()
+        id,
     )
     .fetch_optional(exe)
     .await?;
@@ -25,7 +25,7 @@ pub async fn find_by_id(
 
 pub async fn find_by_range(
     exe: impl PgExecutor<'_>,
-    before: impl Into<Hyphenated>,
+    before: impl Into<Uuid>,
     limit: i64,
 ) -> Result<Vec<Item>> {
     let before = before.into();
@@ -33,7 +33,7 @@ pub async fn find_by_range(
     let models = sqlx::query_as!(
         Model,
         r#"SELECT * FROM items WHERE id < $1 ORDER BY id DESC LIMIT $2"#,
-        before.to_string(),
+        before,
         limit,
     )
     .fetch_all(exe)
@@ -47,7 +47,7 @@ pub async fn insert(exe: impl PgExecutor<'_>, params: ItemParams) -> Result<Uuid
 
     sqlx::query!(
         r#"INSERT INTO items VALUES ($1, $2, $3, $4, $5, $6)"#,
-        model.id.to_string(),
+        model.id,
         model.title,
         model.url,
         model.thumbnail,
@@ -57,12 +57,12 @@ pub async fn insert(exe: impl PgExecutor<'_>, params: ItemParams) -> Result<Uuid
     .execute(exe)
     .await?;
 
-    Ok(model.id.into_uuid())
+    Ok(model.id)
 }
 
 pub async fn update(
     exe: impl PgExecutor<'_>,
-    id: impl Into<Hyphenated>,
+    id: impl Into<Uuid>,
     params: ItemParams,
 ) -> Result<()> {
     let id = id.into();
@@ -74,7 +74,7 @@ pub async fn update(
         model.url,
         model.thumbnail,
         model.updated_at,
-        model.id.to_string(),
+        model.id,
     )
     .execute(exe)
     .await?;
@@ -82,10 +82,10 @@ pub async fn update(
     Ok(())
 }
 
-pub async fn delete(exe: impl PgExecutor<'_>, id: impl Into<Hyphenated>) -> Result<()> {
-    let id: Hyphenated = id.into();
+pub async fn delete(exe: impl PgExecutor<'_>, id: impl Into<Uuid>) -> Result<()> {
+    let id = id.into();
 
-    sqlx::query!(r#"DELETE FROM items WHERE id = $1"#, id.to_string())
+    sqlx::query!(r#"DELETE FROM items WHERE id = $1"#, id)
         .execute(exe)
         .await?;
 

@@ -1,5 +1,5 @@
 CREATE TABLE items(
-  id         TEXT        NOT NULL PRIMARY KEY,
+  id         UUID        NOT NULL PRIMARY KEY,
   title      TEXT        NOT NULL,
   url        TEXT        NOT NULL,
   thumbnail  TEXT        NOT NULL,
