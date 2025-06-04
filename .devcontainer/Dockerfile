@@ -14,8 +14,8 @@ EOF
 RUN <<EOF
   curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
 
-  cargo binstall --no-confirm cargo-watch
-  cargo binstall --no-confirm sqlx-cli
+  cargo binstall bacon --no-confirm --version 3.12.0
+  cargo binstall sqlx-cli --no-confirm --version 0.7.4
 EOF
 
 RUN <<EOF
