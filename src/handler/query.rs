@@ -4,7 +4,7 @@ use axum::extract::State;
 use scraper::{Html, Selector};
 use serde::Deserialize;
 
-use crate::{domain::info::Info, AppState};
+use crate::{AppState, domain::info::Info};
 
 use super::{
     request::Json,

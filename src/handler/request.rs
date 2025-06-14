@@ -2,8 +2,8 @@ use std::ops::Deref;
 
 use axum::{
     extract::{
-        rejection::{JsonRejection, PathRejection, QueryRejection},
         FromRequest, FromRequestParts,
+        rejection::{JsonRejection, PathRejection, QueryRejection},
     },
     http::StatusCode,
     response::IntoResponse,

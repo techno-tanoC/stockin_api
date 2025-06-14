@@ -1,10 +1,10 @@
 use anyhow::Result;
 use chrono::{NaiveDateTime, TimeZone as _, Utc};
-use uuid::{fmt::Hyphenated, Uuid};
+use uuid::{Uuid, fmt::Hyphenated};
 
 use crate::domain::item::{Item, ItemParams};
 
-use super::{model_ext::ModelExt, Timestamp};
+use super::{Timestamp, model_ext::ModelExt};
 
 #[derive(Debug, Clone)]
 pub(super) struct Model {

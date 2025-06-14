@@ -1,6 +1,6 @@
 use anyhow::Result;
 use sqlx::SqliteExecutor;
-use uuid::{fmt::Hyphenated, Uuid};
+use uuid::{Uuid, fmt::Hyphenated};
 
 use crate::domain::item::{Item, ItemParams};
 

@@ -1,11 +1,10 @@
 use axum::{
+    Router,
     body::Body,
     http::{
-        header,
+        Method, Response, header,
         request::{Builder, Request},
-        Method, Response,
     },
-    Router,
 };
 use http_body_util::BodyExt;
 use stockin_api::{App, State};

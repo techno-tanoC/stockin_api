@@ -21,6 +21,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
+#[rustfmt::skip]
 fn items() -> Vec<(&'static str, &'static str, &'static str)> {
     vec![
         (
@@ -97,6 +98,6 @@ fn items() -> Vec<(&'static str, &'static str, &'static str)> {
             "Rustの新しいWEBフレームワークaxumを触ってみた",
             "https://zenn.dev/techno_tanoc/articles/99e54c82cb049f",
             "",
-        )
+        ),
     ]
 }
