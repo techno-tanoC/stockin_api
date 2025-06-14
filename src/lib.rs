@@ -6,8 +6,8 @@ use std::sync::Arc;
 
 use anyhow::Result;
 use axum::{
-    routing::{get, post},
     Router,
+    routing::{get, post},
 };
 use handler::{item, not_found, query};
 use reqwest::Client;
@@ -51,7 +51,7 @@ impl App {
     pub fn new_router(state: AppState) -> Router {
         let item_router = Router::new()
             .route("/", get(item::index).post(item::create))
-            .route("/:item_id", get(item::find).put(item::update).delete(item::delete));
+            .route("/{item_id}", get(item::find).put(item::update).delete(item::delete));
 
         let query_router = Router::new()
             .route("/info", post(query::info));
