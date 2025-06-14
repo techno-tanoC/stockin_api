@@ -36,7 +36,7 @@ tasks:
 
   apply:
     cmds:
-      - sqlite3def -f schema.sql {{.DATABASE}}
+      - sqlite3def -f schema.sql --enable-drop {{.DATABASE}}
 
   setup:
     cmds:
