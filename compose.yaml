@@ -1,15 +1,15 @@
 services:
   app:
     build:
-      context: ../
-      dockerfile: .devcontainer/Dockerfile
-    command: sleep infinity
+      context: ./
+      dockerfile: docker/develop/Dockerfile
+    command: ["bacon", "run"]
     environment:
       DATABASE_URL: sqlite://db/database.sqlite3
       BEARER_TOKEN: debug
     init: true
     volumes:
-      - ../:/workspace
+      - ./:/workspace
       - cargo:/usr/local/cargo/registry
       - target:/workspace/target
 
