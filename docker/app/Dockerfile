@@ -1,5 +1,5 @@
 # Builder stage
-FROM rust:1.83.0-slim AS builder
+FROM rust:1.86.0-slim AS builder
 WORKDIR /workspace
 
 RUN <<EOF
